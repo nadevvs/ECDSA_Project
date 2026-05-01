@@ -6,13 +6,18 @@ from tests import run_all_tests
 
 
 def handle_genkey(args):
-    private_key, public_key = generate_keypair(args.private_key)
+    try:
+        private_key, public_key = generate_keypair(args.private_key)
+    except ValueError as error:
+        print(f"Error: {error}")
+        return
 
     print("=== KEY GENERATION ===")
+    print(f"Curve: P-256")
     print(f"Private key: {private_key}")
-    print("Public key:")
-    print(f"  x = {public_key[0]}")
-    print(f"  y = {public_key[1]}")
+    print("Public key: ")
+    print(f"  x = {public_key.x}")
+    print(f"  y = {public_key.y}")
 
 
 def handle_sign(args):
