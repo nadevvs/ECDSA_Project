@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from core.field import mod_inv
 
+
 @dataclass(frozen=True)
 class Point:
     x: int | None
