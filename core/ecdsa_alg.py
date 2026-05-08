@@ -40,4 +40,23 @@ def sign_message(message: str, private_key: int, nonce: int | None = None):
 
 
 def verify_signature(message: str, public_key, signature):
-    return
+    curve = get_p256_curve()
+    r, s = signature
+
+    if not (1 <= r <= curve.n - 1 and 1 <= s <= curve.n - 1):
+        return False
+
+    e = hash_message(message)
+    w = mod_inv(s, curve.n)
+
+    u1 = (e * w) % curve.n
+    u2 = (r * w) % curve.n
+
+    point_1 = scalar_mult(u1, curve.g, curve)
+    point_2 = scalar_mult(u2, public_key, curve)
+    point_x = point_add(point_1, point_2, curve)
+
+    if point_x.infinity:
+        return False
+
+    return (point_x.x % curve.n) == r
