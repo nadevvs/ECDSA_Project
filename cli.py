@@ -1,5 +1,6 @@
 import argparse
 
+from core.curve import Point
 from core.keygen import generate_keypair
 from core.ecdsa_alg import sign_message, verify_signature
 from tests import run_all_tests
@@ -46,12 +47,12 @@ def handle_sign(args):
 
 
 def handle_verify(args):
-    public_key = (args.public_x, args.public_y)
-    signature = (args.r, args.s)
-
     if args.r <= 0 or args.s <= 0:
         print("Error: signature values r and s must be positive integers.")
         return
+
+    public_key = Point(args.public_x, args.public_y)
+    signature = (args.r, args.s)
 
     is_valid = verify_signature(
         message=args.message,
@@ -62,8 +63,8 @@ def handle_verify(args):
     print("=== SIGNATURE VERIFICATION ===")
     print(f"Message: {args.message}")
     print("Public key:")
-    print(f"  x = {public_key[0]}")
-    print(f"  y = {public_key[1]}")
+    print(f"  x = {public_key.x}")
+    print(f"  y = {public_key.y}")
     print("Signature:")
     print(f"  r = {signature[0]}")
     print(f"  s = {signature[1]}")
