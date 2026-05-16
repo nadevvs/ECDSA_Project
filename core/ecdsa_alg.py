@@ -1,4 +1,4 @@
-from core.curve import get_p256_curve, point_add, scalar_mult
+from core.curve import get_p256_curve, point_add, scalar_mult, is_on_curve
 from core.field import mod_inv
 from core.hashing import hash_message
 from core.keygen import generate_private_key
@@ -44,6 +44,9 @@ def verify_signature(message: str, public_key, signature):
     r, s = signature
 
     if not (1 <= r <= curve.n - 1 and 1 <= s <= curve.n - 1):
+        return False
+
+    if public_key.infinity or not is_on_curve(public_key, curve):
         return False
 
     e = hash_message(message)
