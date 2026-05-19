@@ -5,10 +5,11 @@ from core.keygen import generate_private_key
 
 
 def sign_message(message: str, private_key: int, nonce: int | None = None):
+    # sign msg with p-256 ecdsa
     curve = get_p256_curve()
 
     if not (1 <= private_key <= curve.n - 1):
-        raise ValueError("Private key must be in the range [1, n - 1].")
+        raise ValueError("Private key must be in range [1, n - 1].")
 
     e = hash_message(message)
 
@@ -18,11 +19,12 @@ def sign_message(message: str, private_key: int, nonce: int | None = None):
         else:
             k = nonce
             if not (1 <= k <= curve.n - 1):
-                raise ValueError("Nonce must be in the range [1, n - 1].")
+                raise ValueError("Nonce must be in range [1, n - 1].")
 
         point_r = scalar_mult(k, curve.g, curve)
         r = point_r.x % curve.n
 
+        # r can not be zero in valid sign
         if r == 0:
             if nonce is not None:
                 raise ValueError("Invalid nonce: produced r = 0.")
@@ -31,6 +33,7 @@ def sign_message(message: str, private_key: int, nonce: int | None = None):
         k_inv = mod_inv(k, curve.n)
         s = (k_inv * (e + private_key * r)) % curve.n
 
+        # s can not be zero in valid sign
         if s == 0:
             if nonce is not None:
                 raise ValueError("Invalid nonce: produced s = 0.")
@@ -40,21 +43,26 @@ def sign_message(message: str, private_key: int, nonce: int | None = None):
 
 
 def verify_signature(message: str, public_key, signature):
+    # verif
     curve = get_p256_curve()
     r, s = signature
 
+    # sign nums must be in subgroup range
     if not (1 <= r <= curve.n - 1 and 1 <= s <= curve.n - 1):
         return False
 
+    # pubkey must be valid curve point
     if public_key.infinity or not is_on_curve(public_key, curve):
         return False
 
     e = hash_message(message)
     w = mod_inv(s, curve.n)
 
+    # build verif scalars
     u1 = (e * w) % curve.n
     u2 = (r * w) % curve.n
 
+    # x = u1*g + u2*q
     point_1 = scalar_mult(u1, curve.g, curve)
     point_2 = scalar_mult(u2, public_key, curve)
     point_x = point_add(point_1, point_2, curve)

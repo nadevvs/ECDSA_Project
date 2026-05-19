@@ -3,10 +3,12 @@ from core.curve import get_p256_curve, scalar_mult
 
 
 def generate_private_key(n: int) -> int:
+    # random private key in [1, n - 1]
     return secrets.randbelow(n - 1) + 1
 
 
 def generate_keypair(private_key: int | None = None):
+    # generate or validate private key
     curve = get_p256_curve()
 
     if private_key is None:
@@ -15,5 +17,7 @@ def generate_keypair(private_key: int | None = None):
         if not (1 <= private_key <= curve.n - 1):
             raise ValueError("Private key must be in the range [1, n - 1].")
 
+    # pubkey = privkey * g
     public_key = scalar_mult(private_key, curve.g, curve)
+
     return private_key, public_key
