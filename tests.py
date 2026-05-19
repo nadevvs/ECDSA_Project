@@ -1,3 +1,7 @@
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec, utils
+
 from core.curve import (
     get_p256_curve,
     get_infinity,
@@ -182,6 +186,59 @@ def test_reject_modified_long_message() -> bool:
     return valid_original is True and invalid_modified is False
 
 
+def test_reference_public_key_with_cryptography() -> bool:
+    _, public_key = generate_keypair(TEST_PRIVATE_KEY)
+
+    reference_private_key = ec.derive_private_key(
+        TEST_PRIVATE_KEY,
+        ec.SECP256R1()
+    )
+    reference_public_numbers = reference_private_key.public_key().public_numbers()
+
+    return (
+        public_key.x == reference_public_numbers.x and
+        public_key.y == reference_public_numbers.y
+    )
+
+
+def test_reference_verify_our_signature() -> bool:
+    r, s = sign_message(TEST_MESSAGE, TEST_PRIVATE_KEY, TEST_NONCE)
+    signature = utils.encode_dss_signature(r, s)
+
+    reference_private_key = ec.derive_private_key(
+        TEST_PRIVATE_KEY,
+        ec.SECP256R1()
+    )
+    reference_public_key = reference_private_key.public_key()
+
+    try:
+        reference_public_key.verify(
+            signature,
+            TEST_MESSAGE.encode("utf-8"),
+            ec.ECDSA(hashes.SHA256())
+        )
+    except InvalidSignature:
+        return False
+
+    return True
+
+
+def test_verify_reference_signature() -> bool:
+    reference_private_key = ec.derive_private_key(
+        TEST_PRIVATE_KEY,
+        ec.SECP256R1()
+    )
+    reference_signature = reference_private_key.sign(
+        TEST_MESSAGE.encode("utf-8"),
+        ec.ECDSA(hashes.SHA256())
+    )
+    r, s = utils.decode_dss_signature(reference_signature)
+
+    _, public_key = generate_keypair(TEST_PRIVATE_KEY)
+
+    return verify_signature(TEST_MESSAGE, public_key, (r, s))
+
+
 def run_all_tests():
     tests = [
         ("Test 1 - Base point on curve", test_base_point_on_curve),
@@ -199,6 +256,9 @@ def run_all_tests():
         ("Test 13 - Long message signing and verification 2", test_long_message_2),
         ("Test 14 - Reject modified short message", test_reject_modified_short_message),
         ("Test 15 - Reject modified long message", test_reject_modified_long_message),
+        ("Test 16 - Reference public key with cryptography", test_reference_public_key_with_cryptography),
+        ("Test 17 - Reference verifies project signature", test_reference_verify_our_signature),
+        ("Test 18 - Project verifies reference signature", test_verify_reference_signature),
     ]
 
     passed_count = 0
