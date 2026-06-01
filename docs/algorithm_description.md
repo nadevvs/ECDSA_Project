@@ -237,3 +237,22 @@ The implementation is divided into several mathematical blocks:
 
 This decomposition follows the natural structure of ECDSA and makes each part easier to test separately.
 
+---
+
+## 9. Debug output for mathematical inspection
+
+The implementation provides an optional debug mode for inspecting the calculations performed by the main commands. This mode does not change the ECDSA algorithm or the returned results. It only prints additional compact trace lines after the normal command output.
+
+The debug output can show selected intermediate values, for example:
+
+- message hash integer `e`,
+- nonce `k`,
+- point `R = kG`,
+- signature values `r` and `s`,
+- modular inverse values such as `k^(-1)` or `s^(-1)`,
+- verification values `u1` and `u2`,
+- scalar multiplication summaries,
+- point addition results,
+- curve-equation checks.
+
+This makes it possible to inspect how the key generation, signing, verification, and elliptic curve operations are connected.

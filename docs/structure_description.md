@@ -50,12 +50,13 @@ Main element:
 
 ### 3.2. `cli.py`
 
-This file handles the command-line interface. It parses user arguments, defines commands such as `genkey`, `sign`, `verify`, and `test`, and prints the output.
+This file handles the command-line interface. It parses user arguments, defines commands such as `genkey`, `sign`, `verify`, and `test`, and prints the output. It also handles the optional `--debug` flag for commands that can show intermediate calculations.
 
 Main elements:
 
 - command parser,
-- handlers for key generation, signing, verification, and tests.
+- handlers for key generation, signing, verification, and tests,
+- formatting of compact debug output.
 
 Input: command-line arguments.
 
@@ -71,7 +72,7 @@ Main function:
 
 - `mod_inv(a, m)` — computes the modular inverse of `a` modulo `m`.
 
-This function uses the extended Euclidean algorithm. It is needed because division in modular arithmetic is done by multiplying by an inverse.
+This function uses the extended Euclidean algorithm. It is needed because division in modular arithmetic is done by multiplying by an inverse. The function can also optionally record debug information.
 
 ---
 
@@ -94,6 +95,7 @@ Main functions:
 - `scalar_mult(k, point, curve)` — computes scalar multiplication.
 
 This file is the main mathematical part of the project, because ECDSA depends on point addition and scalar multiplication.
+Some functions in this file can optionally record debug information.
 
 ---
 
@@ -119,7 +121,7 @@ Main functions:
 - `generate_private_key(n)` — generates a private key in the valid range,
 - `generate_keypair(private_key=None)` — returns a private key and public key.
 
-The public key is computed as scalar multiplication of the private key and base point.
+The public key is computed as scalar multiplication of the private key and base point. The key generation function can optionally record debug information.
 
 ---
 
@@ -132,7 +134,7 @@ Main functions:
 - `sign_message(message, private_key, nonce=None)` — returns signature `(r, s)`,
 - `verify_signature(message, public_key, signature)` — returns `True` or `False`.
 
-This module combines hashing, curve arithmetic, modular inverse, and key values into the final ECDSA formulas.
+This module combines hashing, curve arithmetic, modular inverse, and key values into the final ECDSA formulas. Signing and verification can optionally record debug information.
 
 ---
 

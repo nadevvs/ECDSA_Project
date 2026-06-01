@@ -1,4 +1,10 @@
-def mod_inv(a: int, m: int) -> int:
+def mod_inv(
+    a: int,
+    m: int,
+    math_trace: list[str] | None = None,
+    value_name: str = "a",
+    modulus_name: str = "m"
+) -> int:
     # modular inverse with extended euclid alg
     if a == 0:
         raise ValueError("Inverse does not exist for zero.")
@@ -17,5 +23,12 @@ def mod_inv(a: int, m: int) -> int:
     if old_r != 1:
         raise ValueError("Inverse does not exist.")
 
-    return old_s % m
+    result = old_s % m
 
+    if math_trace is not None:
+        math_trace.append(
+            f"mod_inv: computing inverse of {value_name} = {a} "
+            f"mod {modulus_name}, result = {result}"
+        )
+
+    return result

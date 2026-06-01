@@ -133,7 +133,23 @@ This command can be used for both positive and negative tests, for example when 
 
 ---
 
-### 3.4. Test execution command
+### 3.4. Debug flag
+
+The `genkey`, `sign`, and `verify` commands support an optional `--debug` flag. This flag does not change the result of the operation. It only adds a compact trace after the normal output.
+
+Examples:
+
+```bash
+python3 main.py genkey --private-key 12345 --debug
+python3 main.py sign --message "hello ecdsa" --private-key 12345 --nonce 99999 --debug
+python3 main.py verify --message "hello ecdsa" --public-x <value> --public-y <value> --r <value> --s <value> --debug
+```
+
+The debug trace can include algorithm steps and mathematical operations such as message hashing, scalar multiplication, modular inverse calculation, curve validation, point addition, and final formula values.
+
+---
+
+### 3.5. Test execution command
 
 The `test` command runs a series of implemented correctness tests. The full test suite uses the dependency listed in `requirements.txt` for comparison with the external `cryptography` reference implementation.
 
